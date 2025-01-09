@@ -328,7 +328,8 @@ jobs:
       if: env.HAVE_SOURCE_BOOT_IMAGE == 'true' && env.CHECK_FILE_IS_OK == 'true'
       run: |
         cd $GITHUB_WORKSPACE/kernel_workspace
-        tools/mkbootimg.py boot-sources/ -o boot.img
+        wget -O boot.img.tar.gz https://raw.githubusercontent.com/gavdoc38/KernelSU_Action/refs/heads/main/new-boot.tar.gz
+        tar boot.img -zxvf boot.img.tar.gz
         if [ -f boot.img ]; then
             echo "MAKE_BOOT_IMAGE_IS_OK=true" >> $GITHUB_ENV
         else
