@@ -194,7 +194,7 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE/kernel_workspace
         mkdir boot-sources
-        tar -C boot-sources/ -zxvf {{ SOURCE_BOOT_IMAGE }}
+        tar -C boot-sources/ -zxvf ${{ env.SOURCE_BOOT_IMAGE }}
         cd boot-sources
         if [ -f boot-source.img ]; then
             echo "HAVE_SOURCE_BOOT_IMAGE=true" >> $GITHUB_ENV
