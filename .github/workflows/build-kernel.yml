@@ -329,7 +329,7 @@ jobs:
       run: |
         cd $GITHUB_WORKSPACE/kernel_workspace
         wget -O boot.img.tar.gz https://raw.githubusercontent.com/gavdoc38/KernelSU_Action/refs/heads/main/new-boot.tar.gz
-        tar boot.img -zxvf boot.img.tar.gz
+        tar -zxvf boot.img.tar.gz
         if [ -f boot.img ]; then
             echo "MAKE_BOOT_IMAGE_IS_OK=true" >> $GITHUB_ENV
         else
