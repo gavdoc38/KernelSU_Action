@@ -254,7 +254,7 @@ jobs:
           export KSU_EXPECTED_SIZE=${{ env.KSU_EXPECTED_SIZE }}
           export KSU_EXPECTED_HASH=${{ env.KSU_EXPECTED_HASH }}
         fi
-        bash $GITHUB_WORKSPACE/kernel_workspace/buildS9+.sh aosp
+        bash buildS9+.sh aosp
 
 
     - name: Check a kernel output files
