@@ -319,7 +319,7 @@ jobs:
       if: env.HAVE_SOURCE_BOOT_IMAGE == 'true' && env.CHECK_FILE_IS_OK == 'true'
       run: |
         cd $GITHUB_WORKSPACE/kernel_workspace
-        wget -O magiskboot https://github.com/gavdoc38/KernelSU_Action/blob/559a86e711f72abd65aaa9a2f482378825031248/libmagiskboot.so
+        wget -O magiskboot https://raw.githubusercontent.com/gavdoc38/KernelSU_Action/refs/heads/main/libmagiskboot.so
         chmod +x magiskboot
         ./magiskboot unpack ${{ env.SOURCE_BOOT_IMAGE }}
         rm kernel
