@@ -4,7 +4,7 @@ on:
 
 jobs:
   build:
-    name: Build Kernel
+    name: Build Kernel by ${{ github.actor }}
     runs-on: ubuntu-22.04
     env:
       CCACHE_COMPILERCHECK: "%compiler% -dumpmachine; %compiler% -dumpversion"
@@ -193,9 +193,11 @@ jobs:
       if: env.BUILD_BOOT_IMG == 'true'
       run: |
         cd $GITHUB_WORKSPACE/kernel_workspace
-        wget -O boot-souce.img ${{ env.SOURCE_BOOT_IMAGE }}
+        wget -O boot-sources.tar.gz ${{ env.SOURCE_BOOT_IMAGE }}
+        mkdir boot-sources
+        tar -C boot-sources/ -zxvf boot-sources.tar.gz
+        cd boot-sources
         if [ -f boot-source.img ]; then
-            echo "FORMAT_MKBOOTING=$(echo `tools/unpack_bootimg.py --boot_img=boot-source.img --format mkbootimg`)" >> $GITHUB_ENV
             echo "HAVE_SOURCE_BOOT_IMAGE=true" >> $GITHUB_ENV
         fi
 
@@ -203,7 +205,7 @@ jobs:
       if: env.ENABLE_KERNELSU == 'true'
       run: |
         cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel
-        curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/next/kernel/setup.sh" | bash -
+        curl -LSs "https://raw.githubusercontent.com/Frostleaft07/KernelSU-Next/refs/heads/next/kernel/setup.sh" | bash -
         KSU_VERSION=$(cd KernelSU-Next && expr $(/usr/bin/git rev-list --count HEAD) + 10200)
         echo "UPLOADNAME=-KernelSU_$KSU_VERSION" >> $GITHUB_ENV
 
@@ -248,13 +250,13 @@ jobs:
     - name: Build kernel
       run: |
         cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel
+        export PATH=$GITHUB_WORKSPACE/kernel_workspace/clang-aosp/bin:$PATH
         export KBUILD_BUILD_HOST=Github-Action
         export KBUILD_BUILD_USER=$(echo ${{ github.actor }} | tr A-Z a-z)
         if [ ! -z ${{ env.KSU_EXPECTED_SIZE }} ] && [ ! -z ${{ env.KSU_EXPECTED_HASH }} ]; then
           export KSU_EXPECTED_SIZE=${{ env.KSU_EXPECTED_SIZE }}
           export KSU_EXPECTED_HASH=${{ env.KSU_EXPECTED_HASH }}
         fi
-        bash buildS9+.sh aosp
         make -j$(nproc --all) CC=clang O=out ARCH=${{ env.ARCH }} ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }} ${{ env.KERNEL_CONFIG }}
         if [ ${{ env.ENABLE_CCACHE }} = true ]; then
             make -j$(nproc --all) CC="ccache clang" O=out ARCH=${{ env.ARCH }} ${{ env.CUSTOM_CMDS }} ${{ env.EXTRA_CMDS }} ${{ env.GCC_64 }} ${{ env.GCC_32 }}
@@ -272,7 +274,7 @@ jobs:
            exit 1
        fi
        if [ ${{ env.NEED_DTBO }} = true ]; then
-           if [ -f android-kernel/out/arch/${{ env.ARCH }}/boot/dtb.img ]; then
+           if [ -f android-kernel/out/arch/${{ env.ARCH }}/boot/dtbo.img ]; then
                echo "CHECK_DTBO_IS_OK=true" >> $GITHUB_ENV
            else
                echo "DTBO image is empty"
@@ -286,11 +288,16 @@ jobs:
         git clone https://github.com/osm0sis/AnyKernel3 --depth=1 AnyKernel3
         sed -i 's/do.devicecheck=1/do.devicecheck=0/g' AnyKernel3/anykernel.sh
         sed -i 's!BLOCK=/dev/block/platform/omap/omap_hsmmc.0/by-name/boot;!BLOCK=auto;!g' AnyKernel3/anykernel.sh
-        sed -i 's/IS_SLOT_DEVICE=0;/is_slot_device=
-        auto;/g' AnyKernel3/anykernel.sh
+        sed -i 's/IS_SLOT_DEVICE=0;/is_slot_device=auto;/g' AnyKernel3/anykernel.sh
         cp android-kernel/out/arch/${{ env.ARCH }}/boot/${{ env.KERNEL_IMAGE_NAME }} AnyKernel3/
+        cd boot-sources
+        rm boot-source.img
+        rm kernel
+        cp * ../AnyKernel3/
+        cd ../
+        cp android-kernel/out/arch/${{ env.ARCH }}/boot/${{ env.KERNEL_IMAGE_NAME }} boot-sources/
         if [ ${{ env.CHECK_DTBO_IS_OK }} = true ]; then
-            cp android-kernel/out/arch/${{ env.ARCH }}/boot/dtb.img AnyKernel3/
+            cp android-kernel/out/arch/${{ env.ARCH }}/boot/dtbo.img AnyKernel3/
         fi
         rm -rf AnyKernel3/.git* AnyKernel3/README.md
 
@@ -321,16 +328,14 @@ jobs:
       if: env.HAVE_SOURCE_BOOT_IMAGE == 'true' && env.CHECK_FILE_IS_OK == 'true'
       run: |
         cd $GITHUB_WORKSPACE/kernel_workspace
-        tools/unpack_bootimg.py --boot_img boot-source.img
-        cp android-kernel/out/arch/${{ env.ARCH }}/boot/${{ env.KERNEL_IMAGE_NAME }} out/kernel
-        tools/mkbootimg.py ${{ env.FORMAT_MKBOOTING }} -o boot.img
+        wget -O boot.img.tar.gz https://raw.githubusercontent.com/gavdoc38/KernelSU_Action/refs/heads/main/boot.img.tar.xz
+        tar -zxvf boot.img.tar.gz
         if [ -f boot.img ]; then
             echo "MAKE_BOOT_IMAGE_IS_OK=true" >> $GITHUB_ENV
         else
             echo "Boot image is empty"
-            exit 1
         fi
-        
+
     - name: Upload ${{ env.KERNEL_IMAGE_NAME }}
       if: env.CHECK_FILE_IS_OK == 'true'
       uses: actions/upload-artifact@v4
