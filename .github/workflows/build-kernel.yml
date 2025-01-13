@@ -332,7 +332,7 @@ jobs:
         rm kernel
         cp ../android-kernel/out/arch/${{ env.ARCH }}/boot/${{ env.KERNEL_IMAGE_NAME }} .
         echo $(ls -al)
-        $GITHUB_WORKSPACE/libmagiskboot.so repack source-boot.img boot.img
+        $GITHUB_WORKSPACE/libmagiskboot.so repack boot-source.img boot.img
         echo $(ls -al)
         if [ -f boot.img ]; then
             echo "MAKE_BOOT_IMAGE_IS_OK=true" >> $GITHUB_ENV
