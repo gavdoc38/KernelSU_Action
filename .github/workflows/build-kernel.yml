@@ -328,12 +328,15 @@ jobs:
       if: env.HAVE_SOURCE_BOOT_IMAGE == 'true' && env.CHECK_FILE_IS_OK == 'true'
       run: |
         cd $GITHUB_WORKSPACE/kernel_workspace/boot-sources
+        echo $(ls -al)
         rm kernel
         cp ../android-kernel/out/arch/${{ env.ARCH }}/boot/${{ env.KERNEL_IMAGE_NAME }} .
+        echo $(ls -al)
         $GITHUB_WORKSPACE/libmagiskboot.so repack source-boot.img boot.img
+        echo $(ls -al)
         if [ -f boot.img ]; then
             echo "MAKE_BOOT_IMAGE_IS_OK=true" >> $GITHUB_ENV
-            cp boot.img ../android-kernel/out/arch/${{ env.ARCH }}/boot/boot.img
+            cp boot.img ../android-kernel/out/arch/${{ env.ARCH }}/boot/
         else
             echo "Boot image is empty"
         fi
