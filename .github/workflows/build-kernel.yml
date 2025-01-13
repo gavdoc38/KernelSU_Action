@@ -292,6 +292,7 @@ jobs:
         sed -i 's!BLOCK=/dev/block/platform/omap/omap_hsmmc.0/by-name/boot;!BLOCK=auto;!g' AnyKernel3/anykernel.sh
         sed -i 's/IS_SLOT_DEVICE=0;/is_slot_device=auto;/g' AnyKernel3/anykernel.sh
         cp android-kernel/out/arch/${{ env.ARCH }}/boot/${{ env.KERNEL_IMAGE_NAME }} AnyKernel3/
+        cp 
         if [ ${{ env.CHECK_DTBO_IS_OK }} = true ]; then
             cp android-kernel/out/arch/${{ env.ARCH }}/boot/dtbo.img AnyKernel3/
         fi
@@ -315,6 +316,8 @@ jobs:
             unzip AnyKernel3.zip -d AnyKernel3/
         fi
         cp android-kernel/out/arch/${{ env.ARCH }}/boot/${{ env.KERNEL_IMAGE_NAME }} AnyKernel3/
+        cp boot-sources/extra AnyKernel3/
+        cp boot-sources/ramdisk.cpio AnyKernel3/
         if [ ${{ env.CHECK_DTBO_IS_OK }} = true ]; then
             cp android-kernel/out/arch/${{ env.ARCH }}/boot/dtbo.img AnyKernel3/
         fi
@@ -323,15 +326,13 @@ jobs:
     - name: Make boot image
       if: env.HAVE_SOURCE_BOOT_IMAGE == 'true' && env.CHECK_FILE_IS_OK == 'true'
       run: |
-        cd $GITHUB_WORKSPACE/kernel_workspace
-        wget -O magiskboot https://raw.githubusercontent.com/gavdoc38/KernelSU_Action/refs/heads/main/libmagiskboot.so
-        chmod +x magiskboot
-        ./magiskboot unpack ${{ env.SOURCE_BOOT_IMAGE }}
+        cd $GITHUB_WORKSPACE/kernel_workspace/boot-sources
         rm kernel
-        cp android-kernel/out/arch/${{ env.ARCH }}/boot/${{ env.KERNEL_IMAGE_NAME }} .
-        ./magiskboot repack ${{ env.SOURCE_BOOT_IMAGE }} boot.img
+        cp ../android-kernel/out/arch/${{ env.ARCH }}/boot/${{ env.KERNEL_IMAGE_NAME }} .
+        $GITHUB_WORKSPACE/libmagiskboot.so repack source-boot.img boot.img
         if [ -f boot.img ]; then
             echo "MAKE_BOOT_IMAGE_IS_OK=true" >> $GITHUB_ENV
+            cp boot.img ../android-kernel/out/arch/${{ env.ARCH }}/boot/boot.img
         else
             echo "Boot image is empty"
         fi
@@ -362,4 +363,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: boot${{ env.LOCALVERSION }}${{ env.UPLOADNAME }}-${{ env.DEVICE }}-${{ env.BUILD_TIME }}
-        path: kernel_workspace/boot.img
+        path: kernel_workspace/android-kernel/out/arch/${{ env.ARCH }}/boot/boot.img
