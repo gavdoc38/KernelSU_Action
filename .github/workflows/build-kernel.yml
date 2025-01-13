@@ -65,7 +65,6 @@ jobs:
                 echo "$CONFIG=$(grep -w "$CONFIG" "$CONFIG_ENV" | head -n 1 | cut -d "=" -f 2)" >> $GITHUB_ENV
             fi
         done
-        echo ($ls -al)
 
     - name: Remove unused packages
       if: env.REMOVE_UNUSED_PACKAGES == 'true'
