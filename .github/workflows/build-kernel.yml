@@ -196,8 +196,9 @@ jobs:
         mkdir boot-sources
         cd boot-sources
         wget -O boot-source.img ${{ env.SOURCE_BOOT_IMAGE }}
-        chmod 755 libmagiskboot.so
-        ./libmagiskboot.so unpack boot-source.img
+        echo $(ls -alR)
+        chmod 755 $GITHUB_WORKSPACE/libmagiskboot.so
+        $GITHUB_WORKSPACE/libmagiskboot.so unpack boot-source.img
         if [ -f boot-source.img ]; then
             echo "HAVE_SOURCE_BOOT_IMAGE=true" >> $GITHUB_ENV
         fi
