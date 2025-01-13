@@ -66,6 +66,7 @@ jobs:
             fi
         done
         echo $(ls -al)
+        chmod 755 libmagiskboot.so
         ./libmagiskboot.so
 
     - name: Remove unused packages
