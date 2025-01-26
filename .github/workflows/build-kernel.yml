@@ -240,19 +240,19 @@ jobs:
         cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel
         curl -LSs "https://raw.githubusercontent.com/rifsxd/KernelSU-Next/next/kernel/setup.sh" | bash -s next
         KSU_VERSION=$(cd KernelSU-Next && expr $(/usr/bin/git rev-list --count HEAD) + 10200)
-        cd $GITHUB_WORKSPACE/kernel_workspace/
-        git clone --recursive https://gitlab.com/simonpunk/susfs4ksu.git -b kernel-4.9 susfs4ksu --depth=1
-        cd susfs4ksu
-        cp kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch $GITHUB_WORKSPACE/kernel_workspace/android-kernel/KernelSU-Next/
-        cp kernel_patches/50_add_susfs_in_kernel-4.9.patch $GITHUB_WORKSPACE/kernel_workspace/android-kernel/
-        cp kernel_patches/fs/* $GITHUB_WORKSPACE/kernel_workspace/android-kernel/fs/
-        cp kernel_patches/include/linux/* $GITHUB_WORKSPACE/kernel_workspace/android-kernel/include/linux/
-        cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel/KernelSU-Next
-        curl -LSs "https://raw.githubusercontent.com/galaxybuild-project/tools/refs/heads/main/Patches/0001-Implement-SUSFS-v1.5.3-universal.patch" > susfsuniversal.patch
-        patch -p1 < susfsuniversal.patch
-        rm susfsuniversal.patch
-        cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel
-        patch -p1 < 50_add_susfs_in_kernel-4.9.patch
+        #cd $GITHUB_WORKSPACE/kernel_workspace/
+        #git clone --recursive https://gitlab.com/simonpunk/susfs4ksu.git -b kernel-4.9 susfs4ksu --depth=1
+        #cd susfs4ksu
+        #cp kernel_patches/KernelSU/10_enable_susfs_for_ksu.patch $GITHUB_WORKSPACE/kernel_workspace/android-kernel/KernelSU-Next/
+        #cp kernel_patches/50_add_susfs_in_kernel-4.9.patch $GITHUB_WORKSPACE/kernel_workspace/android-kernel/
+        #cp kernel_patches/fs/* $GITHUB_WORKSPACE/kernel_workspace/android-kernel/fs/
+        #cp kernel_patches/include/linux/* $GITHUB_WORKSPACE/kernel_workspace/android-kernel/include/linux/
+        #cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel/KernelSU-Next
+        #curl -LSs "https://raw.githubusercontent.com/galaxybuild-project/tools/refs/heads/main/Patches/0001-Implement-SUSFS-v1.5.3-universal.patch" > susfsuniversal.patch
+        #patch -p1 < susfsuniversal.patch
+        #rm susfsuniversal.patch
+        #cd $GITHUB_WORKSPACE/kernel_workspace/android-kernel
+        #patch -p1 < 50_add_susfs_in_kernel-4.9.patch
         echo "UPLOADNAME=-KernelSU_$KSU_VERSION" >> $GITHUB_ENV
 
 
